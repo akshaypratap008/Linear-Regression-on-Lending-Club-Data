@@ -60,4 +60,17 @@ Columns:
     'paid_late_fees']
 
 Removing columns which are not important for the projects and can lead to data leakage
-Columns to be dropped: 
+Columns to be dropped: ['loan_status', 'balance', 'paid_total', 'paid_principal', 'paid_interest', 'paid_late_fees']
+
+High missingness in particularly these columns
+annual_income_joint                 85.05
+verification_income_joint           85.45
+debt_to_income_joint                85.05
+They are all related to join applications. We will drop join applications and all the columns associated with them
+
+Missing values in months_since_last_delinq and months_since_90d_late
+impute them with max + 1, 0 can be misinterpretted by the model. 
+
+Missing values in emp_length, debt_to_income --> impute them with median
+
+Missing values in 
