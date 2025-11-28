@@ -1,2 +1,4 @@
 pandas
-txt
+numpy
+matplotlib.pyplot
+seaborn

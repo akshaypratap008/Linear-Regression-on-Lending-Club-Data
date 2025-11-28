@@ -2,63 +2,6 @@ Shape of raw data:
 - 10000 rows 
 - 55 features/columns
 
-Columns:
-    ['emp_title', 
-    'emp_length', 
-    'state', 
-    'homeownership', 
-    'annual_income',
-    'verified_income', 
-    'debt_to_income', 
-    'annual_income_joint',
-    'verification_income_joint', 
-    'debt_to_income_joint', 
-    'delinq_2y',
-    'months_since_last_delinq', 
-    'earliest_credit_line',
-    'inquiries_last_12m', 
-    'total_credit_lines', 
-    'open_credit_lines',
-    'total_credit_limit', 
-    'total_credit_utilized',
-    'num_collections_last_12m', 
-    'num_historical_failed_to_pay',
-    'months_since_90d_late', 
-    'current_accounts_delinq',
-    'total_collection_amount_ever', 
-    'current_installment_accounts',
-    'accounts_opened_24m', 
-    'months_since_last_credit_inquiry',
-    'num_satisfactory_accounts', 
-    'num_accounts_120d_past_due',
-    'num_accounts_30d_past_due', 
-    'num_active_debit_accounts',
-    'total_debit_limit', 
-    'num_total_cc_accounts', 
-    'num_open_cc_accounts',
-    'num_cc_carrying_balance', 
-    'num_mort_accounts',
-    'account_never_delinq_percent', 
-    'tax_liens', 
-    'public_record_bankrupt',
-    'loan_purpose', 
-    'application_type', 
-    'loan_amount', 
-    'term',
-    'interest_rate', 
-    'installment', 
-    'grade', 
-    'sub_grade', 
-    'issue_month',
-    'loan_status', 
-    'initial_listing_status', 
-    'disbursement_method',
-    'balance', 
-    'paid_total', 
-    'paid_principal', 
-    'paid_interest',
-    'paid_late_fees']
-
 Removing columns which are not important for the projects and can lead to data leakage
 Columns to be dropped: ['loan_status', 'balance', 'paid_total', 'paid_principal', 'paid_interest', 'paid_late_fees']
 
@@ -66,11 +9,74 @@ High missingness in particularly these columns
 annual_income_joint                 85.05
 verification_income_joint           85.45
 debt_to_income_joint                85.05
-They are all related to join applications. We will drop join applications and all the columns associated with them
+They are all related to join applications. We will drop joint applications and all the columns associated with them
 
-Missing values in months_since_last_delinq and months_since_90d_late
-impute them with max + 1, 0 can be misinterpretted by the model. 
+Missing values in months_since_last_delinq and months_since_90d_late --> impute them with max + 1, 0 can be misinterpretted by the model. 
 
 Missing values in emp_length, debt_to_income --> impute them with median
 
-Missing values in 
+missing values in months_since_last_credit_inquiry and num_accounts_120d_past_due --> impute with max + 1
+
+earliest_credit_line --> change from years to years_since_first_credit (current year - earlier_credit_line)
+
+Divide data into 3 buckets (borrower_profile, credit_history, loan_details)
+
+'emp_length' -- borrower_profile
+'state' -- borrower_profile 
+'homeownership' -- borrower_profile
+'annual_income' -- borrower_profile
+'verified_income' -- borrower_profile 
+'debt_to_income' -- borrower_profile 
+
+'delinq_2y' -- credit_history
+'months_since_last_delinq' -- credit_history 
+'years_since_first_credit' -- credit_history
+'inquiries_last_12m' -- credit_history 
+'total_credit_lines' -- credit_history 
+'open_credit_lines' -- credit_history
+'total_credit_limit' -- credit_history
+'total_credit_utilized' -- credit_history
+'num_collections_last_12m' -- credit_history
+'num_historical_failed_to_pay' -- credit_history
+'months_since_90d_late' -- credit_history 
+'current_accounts_delinq' -- credit_history
+'total_collection_amount_ever' -- credit_history 
+'current_installment_accounts' -- credit_history
+'accounts_opened_24m' -- credit_history
+'months_since_last_credit_inquiry' -- credit_history
+'num_satisfactory_accounts' -- credit_history 
+'num_accounts_120d_past_due' -- credit_history
+'num_accounts_30d_past_due' -- credit_history
+'num_active_debit_accounts' -- credit_history
+'total_debit_limit' -- credit_history
+'num_total_cc_accounts' -- credit_history
+'num_open_cc_accounts' -- credit_history
+'num_cc_carrying_balance' -- credit_history 
+'num_mort_accounts' -- credit_history
+'account_never_delinq_percent' -- credit_history
+'tax_liens' -- credit_history
+'public_record_bankrupt' -- credit_history
+
+'loan_purpose' -- loan_details 
+'application_type' -- loan_details
+'loan_amount' -- loan_details 
+'term' -- loan_details
+'interest_rate' -- loan_details 
+'installment' -- loan_details 
+'grade' -- loan_details 
+'sub_grade' -- loan_details 
+'issue_month' -- loan_details
+'initial_listing_status' -- loan_details 
+'disbursement_method' -- loan_details
+
+
+### EDA- borrower's profile
+annual_income -- heavily right skewed. Log transformation needed, created new col in temp data
+debt_to_income -- heavily right skewed, log transformation needed, created new col in temp data
+
+emp_length -- uniform throughout, drop the columns
+states have high cardiniality -- colapse less popular states into others
+renters have slightly high interest rates as compared to homeowners and morgage people, morgage and home owners have similar midean -- change them is_renter (0 or 1) - created a new col in temp_data
+
+
+

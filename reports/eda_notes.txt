@@ -1,0 +1,11 @@
+EDA Notes 
+
+Borrower's profile 
+annual_income → heavily right-skewed → log transform 
+debt_to_income → heavily right-skewed → log transform 
+emp_length → uniform, no signal → drop 
+homeownership → predictive → keep, encode later 
+verified_income → predictive, nuanced → keep, encode later 
+state → high cardinality → collapse rare states 
+
+Credit history
