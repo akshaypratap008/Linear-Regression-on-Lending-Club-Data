@@ -78,5 +78,11 @@ emp_length -- uniform throughout, drop the columns
 states have high cardiniality -- colapse less popular states into others
 renters have slightly high interest rates as compared to homeowners and morgage people, morgage and home owners have similar midean -- change them is_renter (0 or 1) - created a new col in temp_data
 
+### EDA- credit history
+As per heatmap - 
+columns with strong/moderate correlation with interest rates - months_since_last_delinq, inquiries_last_12m, total_credit_limit, months_since_90d_late, month_since_last_credit_inquiry, total_debit_limit, num_mort_accounts, account_never_delinq_percent, months_since_90d_late, accounts_opened_24m, inquiries_last_12m, delinq_2y
+
+remove num_satisfactory line --> heavily correlated to open_credit_lines
+remove curr_accounts_delinq --> heavily correlated with num_accounts_30d_past_due
 
 
