@@ -84,5 +84,51 @@ columns with strong/moderate correlation with interest rates - months_since_last
 
 remove num_satisfactory line --> heavily correlated to open_credit_lines
 remove curr_accounts_delinq --> heavily correlated with num_accounts_30d_past_due
+remove total_credit_lines --> heavily correlated with open_credit_lines
+remove num_total_cc_accounts --> heavily correlated with open_credit_lines
+remove num_open_cc_accounts --> correlated with open_credit_lines
+remove num_cc_carrying_balance --> correlated with num_open_cc_accounts 
+
+drop tax_liens as correlation with num_historical_failed_to_pay is high and num_historical_fail_to_pay has higher correlation with interest_rate than tax_liens
+-----------------------------------------
+create buckets like delinquency_fetaures, credit_activity, limit_utilisation, account_composition, public_records
+
+delinq_features = ['delinq_2y', 'months_since_last_delinq', 'num_historical_failed_to_pay', 'months_since_90d_late', 'num_accounts_120d_past_due', 'num_accounts_30d_past_due', 'account_never_delinq_percent', ]
+
+credit_activity = ['years_since_first_credit', 'inquiries_last_12m', 'open_credit_lines', 'total_credit_utilized', 'months_since_last_credit_inquiry', ]
+
+limit_utilisation = ['total_debit_limit', 'total_credit_limit']
+
+account_composition = ['current_installment_accounts', 'accounts_opened_24m', 'num_active_debit_accounts', 'num_mort_accounts', ]
+
+public_records = ['num_collections_last_12m', 'total_collection_amount_ever', 'public_record_bankrupt']
+-----------------------------------------
+delinq features analysis
+drop features in delinq_feature bucket which have less than 0.1 corr() with interest rate 
+
+months_since_last_delinq --> need square transformation
+
+most values in months_since_90d_due are 129 which is a sentinel values. Created a new column 'never_late_payment' with values 0 and 1. 1 for late payments in past 90days
+- never_late_payment have slightly lesser interest rates as expected
+
+column account_never_delinq_percent --> split them into bins [-1, 80, 95, 99, 100] and label ['High Risk', 'Moderate Risk', 'Low Risk', 'Perfect']
+- interest rates goes down as risk decreases
+-----------------------------------------
+credit activity bucket analysis
+inquiries_last_12m and months_since_last_credit_inquiry are the only two feature strongly correlated with interest rate(corr > 0.1). They are both heavily correlated. Droping all other features, except inquiries_last_12m
+-----------------------------------------
+limit Utilisation bucket analysis
+Both columns highly correlated with interest rates. Both are heavily correlated with each other as well. To avoid multicollinearity, only keep total_debit_limit
+------------------------------------------
+Account composition analysis
+All the features except current_install_ment_accounts have slightly higher corr with interest rates. num_active_debit_accounts have the highest corr. 
+Drop current_installment_accounts
+num_active_debit_accounts right skewed, highly correlated with interest rates. Log transformation column created. 
+------------------------------------------
+Public Recods analysis
+very little correlation with interest rates
+
+
+
 
 
