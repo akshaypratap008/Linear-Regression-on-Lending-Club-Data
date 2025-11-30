@@ -1,0 +1,32 @@
+,features,coefficients
+0,num__emp_length,-0.03716890011902716
+1,num__is_renter,0.20473710129973377
+2,num__log_transformed_annual_income,-0.27781063893187624
+3,num__log_transformed_debit_to_income,0.7251340801577792
+4,num__inquiries_last_12m,0.42657474003729534
+5,num__accounts_opened_24m,0.325338155515933
+6,num__num_mort_accounts,-0.6674946259849097
+7,num__square_months_since_last_delinq,-0.4843701378524444
+8,num__never_late_payment,-0.0008453729544192407
+9,num__log_total_debit_limit,-1.1745588229519417
+10,num__log_num_active_debit_accounts,0.6266255289755974
+11,num__has_bankruptcy,0.16368093166894937
+12,num__loan_amount,0.5407153975341993
+13,cat__verified_income_Source Verified,1.0314262658262732
+14,cat__verified_income_Verified,2.4435873854077723
+15,cat__state_grouped_FL,0.05897431039002205
+16,cat__state_grouped_GA,0.0
+17,cat__state_grouped_IL,-0.0
+18,cat__state_grouped_NJ,-0.0339062874180915
+19,cat__state_grouped_NY,0.2612758867353969
+20,cat__state_grouped_OH,0.0
+21,cat__state_grouped_TX,-0.0
+22,cat__state_grouped_other,-0.01155316792235583
+23,cat__delinq_risk_category_Low Risk,-0.35665419049822183
+24,cat__delinq_risk_category_Moderate Risk,0.0
+25,cat__delinq_risk_category_Perfect,-0.35561946128227384
+26,cat__loan_purpose_debt_consolidation,0.9755244212168217
+27,cat__loan_purpose_home_improvement,0.07220447662022496
+28,cat__loan_purpose_major_purchase,0.24231659517609414
+29,cat__loan_purpose_other,0.6734630349245154
+30,cat__application_type_joint,0.12577880806392097

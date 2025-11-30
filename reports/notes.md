@@ -1,132 +1,151 @@
-Shape of raw data:
-- 10000 rows 
-- 55 features/columns
+# 1. Dataset Overview
+Raw shape: 10,000 rows × 55 columns
 
-Removing columns which are not important for the projects and can lead to data leakage
-Columns to be dropped: ['loan_status', 'balance', 'paid_total', 'paid_principal', 'paid_interest', 'paid_late_fees']
+Dropped leakage columns: ['loan_status', 'balance', 'paid_total', 'paid_principal', 'paid_interest', 'paid_late_fees']
 
-High missingness in particularly these columns
-annual_income_joint                 85.05
-verification_income_joint           85.45
-debt_to_income_joint                85.05
-They are all related to join applications. We will drop joint applications and all the columns associated with them
+Joint application columns: High missingness (>85%) → dropped all joint-related features (annual_income_joint, verification_income_joint, debt_to_income_joint)
 
-Missing values in months_since_last_delinq and months_since_90d_late --> impute them with max + 1, 0 can be misinterpretted by the model. 
+# 2. Missing Value Handling
+months_since_last_delinq, months_since_90d_late → imputed with max + 1 (to avoid misinterpreting 0 as valid)
 
-Missing values in emp_length, debt_to_income --> impute them with median
+emp_length, debt_to_income → imputed with median
 
-missing values in months_since_last_credit_inquiry and num_accounts_120d_past_due --> impute with max + 1
+months_since_last_credit_inquiry, num_accounts_120d_past_due → imputed with max + 1
 
-earliest_credit_line --> change from years to years_since_first_credit (current year - earlier_credit_line)
+earliest_credit_line → transformed into years_since_first_credit (current year – earliest credit year)
 
-Divide data into 3 buckets (borrower_profile, credit_history, loan_details)
+# 3. Feature Buckets
+Organized into three main groups:
 
-'emp_length' -- borrower_profile
-'state' -- borrower_profile 
-'homeownership' -- borrower_profile
-'annual_income' -- borrower_profile
-'verified_income' -- borrower_profile 
-'debt_to_income' -- borrower_profile 
+Borrower Profile: emp_length, state, homeownership, annual_income, verified_income, debt_to_income
 
-'delinq_2y' -- credit_history
-'months_since_last_delinq' -- credit_history 
-'years_since_first_credit' -- credit_history
-'inquiries_last_12m' -- credit_history 
-'total_credit_lines' -- credit_history 
-'open_credit_lines' -- credit_history
-'total_credit_limit' -- credit_history
-'total_credit_utilized' -- credit_history
-'num_collections_last_12m' -- credit_history
-'num_historical_failed_to_pay' -- credit_history
-'months_since_90d_late' -- credit_history 
-'current_accounts_delinq' -- credit_history
-'total_collection_amount_ever' -- credit_history 
-'current_installment_accounts' -- credit_history
-'accounts_opened_24m' -- credit_history
-'months_since_last_credit_inquiry' -- credit_history
-'num_satisfactory_accounts' -- credit_history 
-'num_accounts_120d_past_due' -- credit_history
-'num_accounts_30d_past_due' -- credit_history
-'num_active_debit_accounts' -- credit_history
-'total_debit_limit' -- credit_history
-'num_total_cc_accounts' -- credit_history
-'num_open_cc_accounts' -- credit_history
-'num_cc_carrying_balance' -- credit_history 
-'num_mort_accounts' -- credit_history
-'account_never_delinq_percent' -- credit_history
-'tax_liens' -- credit_history
-'public_record_bankrupt' -- credit_history
+Credit History: delinquency, credit activity, limit utilization, account composition, public records
 
-'loan_purpose' -- loan_details 
-'application_type' -- loan_details
-'loan_amount' -- loan_details 
-'term' -- loan_details
-'interest_rate' -- loan_details 
-'installment' -- loan_details 
-'grade' -- loan_details 
-'sub_grade' -- loan_details 
-'issue_month' -- loan_details
-'initial_listing_status' -- loan_details 
-'disbursement_method' -- loan_details
+Loan Details: loan_purpose, application_type, loan_amount, term, installment, grade, sub_grade, issue_month, initial_listing_status, disbursement_method, interest_rate
+
+## 4. Borrower Profile Analysis
+annual_income → heavily right-skewed → log transform (log_transformed_annual_income)
+
+debt_to_income → heavily right-skewed → log transform (log_transformed_debit_to_income)
+
+emp_length → uniform distribution → dropped
+
+state → high cardinality → collapsed rare states into "other" (state_grouped)
+
+homeownership → renters show slightly higher interest rates → created a binary flag is_renter
+
+## 5. Credit History Analysis
+Correlation Highlights
+Strong/moderate correlation with interest_rate: months_since_last_delinq, inquiries_last_12m, total_credit_limit, months_since_90d_late, total_debit_limit, num_mort_accounts, account_never_delinq_percent, accounts_opened_24m, delinq_2y
+
+Feature Reductions
+Dropped due to redundancy:
+num_satisfactory_accounts, current_accounts_delinq, total_credit_lines, num_total_cc_accounts, num_open_cc_accounts, num_cc_carrying_balance
+
+Dropped due to overlap:
+tax_liens (correlated with num_historical_failed_to_pay, which had stronger signal)
+
+### Buckets
+Delinquency Features: delinq_2y, months_since_last_delinq, num_historical_failed_to_pay, months_since_90d_late, num_accounts_120d_past_due, num_accounts_30d_past_due, account_never_delinq_percent
+
+Credit Activity: years_since_first_credit, inquiries_last_12m, open_credit_lines, total_credit_utilized, months_since_last_credit_inquiry
+
+Limit Utilization: total_debit_limit, total_credit_limit
+
+Account Composition: current_installment_accounts, accounts_opened_24m, num_active_debit_accounts, num_mort_accounts
+
+Public Records: num_collections_last_12m, total_collection_amount_ever, public_record_bankrupt
+
+### 5.1 Detailed Bucket Analysis
+### 5.1.1 Delinquency Features
+Dropped features with correlation <0.1
+
+months_since_last_delinq, left skewed→ squared transform (square_months_since_last_delinq)
+
+months_since_90d_late → sentinel values (129) → created binary flag never_late_payment
+
+account_never_delinq_percent → binned into risk categories (High Risk, Moderate Risk, Low Risk, Perfect) → new feature delinq_risk_category
+
+### 5.1.2 Credit Activity
+Only inquiries_last_12m retained (strongest correlation)
+
+Dropped others due to redundancy
+
+### 5.1.3 Limit Utilization
+Both total_debit_limit and total_credit_limit correlated with interest rate
+
+To avoid multicollinearity → kept only total_debit_limit (later log-transformed)
+
+### 5.1.4 Account Composition
+Dropped current_installment_accounts (weak correlation)
+
+num_active_debit_accounts → strongest correlation, log-transformed (log_num_active_debit_accounts)
+
+Kept accounts_opened_24m and num_mort_accounts
+
+### 5.1.5 Public Records
+Very weak correlation with interest rate
+
+Still kept public_record_bankrupt (binary flag engineered as has_bankruptcy) for interpretability
+
+## 6. Loan Details Analysis
+loan_purpose → collapsed rare categories into "other_purpose"; boxplots confirmed signal
+
+application_type → categorical, to be one-hot encoded
+
+loan_amount → right-skewed → log transform (log_loan_amount)
+
+installment → dropped (redundant)
+
+term → categorical (36 vs 60 months)
+
+grade / sub_grade → flagged as potential leakage with interest_rate
+
+Other categorical features (issue_month, initial_listing_status, disbursement_method) → retained for encoding
+
+# 8. Transformations & Engineering
+Log transforms: annual_income, debt_to_income, total_debit_limit, num_active_debit_accounts
+
+Squared transform: months_since_last_delinq
+
+Binary flags: is_renter, never_late_payment, has_bankruptcy
+
+Risk categories: delinq_risk_category
+
+Collapsed categories: state_grouped, loan_purpose_grouped
+
+# 9. Check Multicollimnearity
+for raw_features 
+- installment and loan amount heavily correlated with each other, dropped installments column
+- vif ranges between 1 and 3 for all numerical columns. 
+- condition number is too high because we have not scalled the data yet. 
+- consition number after scalling --> 2.71
+
+for transformed features
+- corr() is less than 0.80 for all the pairs
+- VIF is less than 2. Looks good
+- high condition number without scalling 
+- condition number after scalling 2.47, Looks good.
+
+Conclusion: tranformed_features have smaller condition number and VIF after scalling as compared to raw_features
+
+# 10. Create pipeline for one hot encoding and standard scalling
+- Use transformed_data (which includes log and square transformed columns)
+
+- When applied Linear Regression using the pipeline,
+R2 score = 0.21
+MSE = 19.97
+
+- We will try regularisation to check if it improved the scores
+Ridge -- not much difference in scores
+Lasso -- not much difference
+
+# 11. Conclusion
+R2 score remains at 0.21 and MSE at 19.97 even after applying regularisation. 
+Our project needs more advanced models to improve prediction scores. 
 
 
-### EDA- borrower's profile
-annual_income -- heavily right skewed. Log transformation needed, created new col in temp data
-debt_to_income -- heavily right skewed, log transformation needed, created new col in temp data
 
-emp_length -- uniform throughout, drop the columns
-states have high cardiniality -- colapse less popular states into others
-renters have slightly high interest rates as compared to homeowners and morgage people, morgage and home owners have similar midean -- change them is_renter (0 or 1) - created a new col in temp_data
-
-### EDA- credit history
-As per heatmap - 
-columns with strong/moderate correlation with interest rates - months_since_last_delinq, inquiries_last_12m, total_credit_limit, months_since_90d_late, month_since_last_credit_inquiry, total_debit_limit, num_mort_accounts, account_never_delinq_percent, months_since_90d_late, accounts_opened_24m, inquiries_last_12m, delinq_2y
-
-remove num_satisfactory line --> heavily correlated to open_credit_lines
-remove curr_accounts_delinq --> heavily correlated with num_accounts_30d_past_due
-remove total_credit_lines --> heavily correlated with open_credit_lines
-remove num_total_cc_accounts --> heavily correlated with open_credit_lines
-remove num_open_cc_accounts --> correlated with open_credit_lines
-remove num_cc_carrying_balance --> correlated with num_open_cc_accounts 
-
-drop tax_liens as correlation with num_historical_failed_to_pay is high and num_historical_fail_to_pay has higher correlation with interest_rate than tax_liens
------------------------------------------
-create buckets like delinquency_fetaures, credit_activity, limit_utilisation, account_composition, public_records
-
-delinq_features = ['delinq_2y', 'months_since_last_delinq', 'num_historical_failed_to_pay', 'months_since_90d_late', 'num_accounts_120d_past_due', 'num_accounts_30d_past_due', 'account_never_delinq_percent', ]
-
-credit_activity = ['years_since_first_credit', 'inquiries_last_12m', 'open_credit_lines', 'total_credit_utilized', 'months_since_last_credit_inquiry', ]
-
-limit_utilisation = ['total_debit_limit', 'total_credit_limit']
-
-account_composition = ['current_installment_accounts', 'accounts_opened_24m', 'num_active_debit_accounts', 'num_mort_accounts', ]
-
-public_records = ['num_collections_last_12m', 'total_collection_amount_ever', 'public_record_bankrupt']
------------------------------------------
-delinq features analysis
-drop features in delinq_feature bucket which have less than 0.1 corr() with interest rate 
-
-months_since_last_delinq --> need square transformation
-
-most values in months_since_90d_due are 129 which is a sentinel values. Created a new column 'never_late_payment' with values 0 and 1. 1 for late payments in past 90days
-- never_late_payment have slightly lesser interest rates as expected
-
-column account_never_delinq_percent --> split them into bins [-1, 80, 95, 99, 100] and label ['High Risk', 'Moderate Risk', 'Low Risk', 'Perfect']
-- interest rates goes down as risk decreases
------------------------------------------
-credit activity bucket analysis
-inquiries_last_12m and months_since_last_credit_inquiry are the only two feature strongly correlated with interest rate(corr > 0.1). They are both heavily correlated. Droping all other features, except inquiries_last_12m
------------------------------------------
-limit Utilisation bucket analysis
-Both columns highly correlated with interest rates. Both are heavily correlated with each other as well. To avoid multicollinearity, only keep total_debit_limit
-------------------------------------------
-Account composition analysis
-All the features except current_install_ment_accounts have slightly higher corr with interest rates. num_active_debit_accounts have the highest corr. 
-Drop current_installment_accounts
-num_active_debit_accounts right skewed, highly correlated with interest rates. Log transformation column created. 
-------------------------------------------
-Public Recods analysis
-very little correlation with interest rates
 
 
 
