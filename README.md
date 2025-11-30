@@ -9,7 +9,7 @@ The goal was to practice:
 - Running regression diagnostics (correlation, VIF, condition number)
 - Interpreting coefficients for feature importance
 
-This project serves as a **baseline exploration**. Future iterations may include more advanced algorithms (Ridge, Lasso, Random Forests, Gradient Boosting, XGBoost) once I study them in detail.
+This project serves as a **baseline exploration**. Future iterations may include more advanced algorithms (Random Forests, Gradient Boosting, XGBoost) once I study them in detail.
 
 ---
 
