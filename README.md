@@ -4,7 +4,7 @@
 This project explores the **Lending Club loan dataset** using **Linear Regression** as the primary modeling technique.  
 I completed this project immediately after learning Linear Regression, so I intentionally did **not use any other algorithms**.  
 The goal was to practice:
-- Building a reproducible machine learning pipeline
+- Building a reproducible machine learning pipeline considering 'interest_rate' as a traget column for Linear Regression model.
 - Applying preprocessing (scaling, encoding, transformations)
 - Running regression diagnostics (correlation, VIF, condition number)
 - Interpreting coefficients for feature importance
