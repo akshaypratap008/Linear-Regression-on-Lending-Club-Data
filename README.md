@@ -69,7 +69,6 @@ This project serves as a **baseline exploration**. Future iterations may include
 
 ## Next Steps
 - Revisit this project after learning advanced algorithms:
-  - Ridge/Lasso with proper tuning
   - Tree-based models (Random Forest, Gradient Boosting, XGBoost)
   - Interaction terms and polynomial features
 - Compare performance against the baseline Linear Regression to measure improvement.
